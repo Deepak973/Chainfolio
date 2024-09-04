@@ -1,12 +1,11 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import { IStargate } from "./interfaces/IStargate.sol";
-import { MessagingFee, OFTReceipt, SendParam } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oft/interfaces/IOFT.sol";
-import { OptionsBuilder } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
-
+import {IStargate} from "./interfaces/IStargate.sol";
+import {MessagingFee, OFTReceipt, SendParam} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oft/interfaces/IOFT.sol";
+import {OptionsBuilder} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oapp/libs/OptionsBuilder.sol";
 
 contract stargateTransferWithCompose {
-    
     using OptionsBuilder for bytes;
 
     function prepareTakeTaxi(
@@ -15,13 +14,22 @@ contract stargateTransferWithCompose {
         uint256 _amount,
         address _composer,
         bytes memory _composeMsg
-    ) external view returns (uint256 valueToSend, SendParam memory sendParam, MessagingFee memory messagingFee) {
-
-          bytes memory extraOptions = _composeMsg.length > 0
-            ? OptionsBuilder.newOptions().addExecutorLzComposeOption(0, 200_000, 0) // compose gas limit
+    )
+        external
+        view
+        returns (
+            uint256 valueToSend,
+            SendParam memory sendParam,
+            MessagingFee memory messagingFee
+        )
+    {
+        bytes memory extraOptions = _composeMsg.length > 0
+            ? OptionsBuilder.newOptions().addExecutorLzComposeOption(
+                0,
+                200_000,
+                0
+            ) // compose gas limit
             : bytes("");
-       
-
 
         sendParam = SendParam({
             dstEid: _dstEid,
