@@ -4,3 +4,13 @@ out = "out"
 libs = ["lib"]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@layerzerolabs/=node_modules/@layerzerolabs/",
+    "solidity-bytes-utils/=node_modules/solidity-bytes-utils/"
+
+]
+
+[rpc_endpoints]
+optimism_sepolia = "${OP_SEPOLIA_RPC_URL}"
+arbitrum_sepolia = "${ARB_SEPOLIA_RPC_URL}"
