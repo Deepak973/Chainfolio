@@ -9,7 +9,6 @@ remappings = [
     "@openzeppelin/=lib/openzeppelin-contracts/",
     "@layerzerolabs/=node_modules/@layerzerolabs/",
     "solidity-bytes-utils/=node_modules/solidity-bytes-utils/"
-
 ]
 
 [rpc_endpoints]
