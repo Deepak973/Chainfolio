@@ -2,8 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Script.sol";
-import "../src/stargateTransfer.sol"; 
-
+import "../src/stargateTransfer.sol";
 
 contract StargateTransferScript is Script {
     // Constants
@@ -21,13 +20,12 @@ contract StargateTransferScript is Script {
 
         // Deploy the StargateTransfer contract
         StargateTransfer stargateTransfer = new StargateTransfer(STARGATE_ROUTER_OP_SEPOLIA);
-        
 
         // Approve USDC spend
         IERC20(USDC_OP_SEPOLIA).approve(address(stargateTransfer), type(uint256).max);
 
         // Get fee quote
-        (uint256 nativeFee, ) = stargateTransfer.getFeesQuote(DST_CHAIN_ID_ARB_SEPOLIA, deployerAddress);
+        (uint256 nativeFee,) = stargateTransfer.getFeesQuote(DST_CHAIN_ID_ARB_SEPOLIA, deployerAddress);
 
         // Perform the transfer
         uint256 amountToTransfer = 1 * 1e6; // 10 USDC (assuming 6 decimals)

@@ -12,12 +12,11 @@ contract StargateTransferScript is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        address endpoint = 0x6EDCE65403992e310A62460808c4b910D972f10f;
-        address stargate = 0x0d7aB83370b492f2AB096c80111381674456e8d8;
-        address addressProvider = 0xB25a5D144626a0D488e52AE717A051a2E9997076;
+        address endpoint = vm.envAddress("OPTIMISM_T_LAYERZERO_ENDPOINT");
+        address stargate = vm.envAddress("OPTIMISM_T_STARGATE_ENDPOINT");
+        address addressProvider = vm.envAddress("OPTIMISM_T_AAVE_ADDRESS_PROVIDER");
 
-        // Deploy the StargateTransfer contract
-        Receiver receiver = new Receiver(endpoint, stargate, addressProvider);
+        ChainFolioReceiver receiver = new ChainFolioReceiver(endpoint, stargate, addressProvider);
         console.log("deployed address:", address(receiver));
 
         vm.stopBroadcast();

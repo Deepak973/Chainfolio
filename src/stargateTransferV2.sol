@@ -1,16 +1,14 @@
 pragma solidity ^0.8.19;
 
-import { IStargate } from "./interfaces/IStargate.sol";
-import { MessagingFee, OFTReceipt, SendParam } from "@layerzerolabs/lz-evm-oapp-v2/contracts/oft/interfaces/IOFT.sol";
-
+import {IStargate} from "./interfaces/IStargate.sol";
+import {MessagingFee, OFTReceipt, SendParam} from "@layerzerolabs/lz-evm-oapp-v2/contracts/oft/interfaces/IOFT.sol";
 
 contract StargateIntegration {
-    function prepareTakeTaxi(
-        address _stargate,
-        uint32 _dstEid,
-        uint256 _amount,
-        address _receiver
-    ) external view returns (uint256 valueToSend, SendParam memory sendParam, MessagingFee memory messagingFee) {
+    function prepareTakeTaxi(address _stargate, uint32 _dstEid, uint256 _amount, address _receiver)
+        external
+        view
+        returns (uint256 valueToSend, SendParam memory sendParam, MessagingFee memory messagingFee)
+    {
         sendParam = SendParam({
             dstEid: _dstEid,
             to: addressToBytes32(_receiver),
@@ -23,7 +21,7 @@ contract StargateIntegration {
 
         IStargate stargate = IStargate(_stargate);
 
-        (, , OFTReceipt memory receipt) = stargate.quoteOFT(sendParam);
+        (,, OFTReceipt memory receipt) = stargate.quoteOFT(sendParam);
         sendParam.minAmountLD = receipt.amountReceivedLD;
 
         messagingFee = stargate.quoteSend(sendParam, false);

@@ -56,7 +56,6 @@ interface IPool {
         //bit 176-211 unbacked mint cap in whole tokens, unbackedMintCap == 0 => minting disabled
         //bit 212-251 debt ceiling for isolation mode with (ReserveConfiguration::DEBT_CEILING_DECIMALS) decimals
         //bit 252-255 unused
-
         uint256 data;
     }
 
@@ -72,12 +71,7 @@ interface IPool {
      * @param referralCode Code used to register the integrator originating the operation, for potential rewards.
      *   0 if the action is executed directly by the user, without any middle-man
      */
-    function deposit(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode
-    ) external;
+    function deposit(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external;
 
     /**
      * @notice Returns the user account data across all the reserves
@@ -89,9 +83,7 @@ interface IPool {
      * @return ltv The loan to value of The user
      * @return healthFactor The current health factor of the user
      */
-    function getUserAccountData(
-        address user
-    )
+    function getUserAccountData(address user)
         external
         view
         returns (
@@ -114,18 +106,12 @@ interface IPool {
      *   different wallet
      * @return The final amount withdrawn
      */
-    function withdraw(
-        address asset,
-        uint256 amount,
-        address to
-    ) external returns (uint256);
+    function withdraw(address asset, uint256 amount, address to) external returns (uint256);
 
     /**
      * @notice Returns the state and configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
      * @return The state and configuration data of the reserve
      */
-    function getReserveData(
-        address asset
-    ) external view returns (ReserveData memory);
+    function getReserveData(address asset) external view returns (ReserveData memory);
 }

@@ -14,3 +14,7 @@ remappings = [
 [rpc_endpoints]
 optimism_sepolia = "${OP_SEPOLIA_RPC_URL}"
 arbitrum_sepolia = "${ARB_SEPOLIA_RPC_URL}"
+
+[etherscan]
+optimism = { key = "${OP_SEPOLIA_API_KEY}" }
+arbitrum ={key = "${ARB_SEPOLIA_API_KEY}"}

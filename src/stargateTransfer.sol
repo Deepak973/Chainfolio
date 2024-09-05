@@ -6,8 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IStargateRouter.sol";
 
-contract StargateTransfer is Ownable{
-
+contract StargateTransfer is Ownable {
     using SafeERC20 for IERC20;
 
     IStargateRouter public immutable stargateRouter;
@@ -16,15 +15,13 @@ contract StargateTransfer is Ownable{
         stargateRouter = IStargateRouter(_stargateRouter);
     }
 
-    function getFeesQuote(
-        uint16 _dstChainId,
-        address recipient
-    ) public view returns (uint256 nativeFee, uint256 lzFee) {
-        IStargateRouter.lzTxObj memory lzTxObj = IStargateRouter.lzTxObj({
-            dstGasForCall: 200_000,
-            dstNativeAmount: 0,
-            dstNativeAddr: ""
-        });
+    function getFeesQuote(uint16 _dstChainId, address recipient)
+        public
+        view
+        returns (uint256 nativeFee, uint256 lzFee)
+    {
+        IStargateRouter.lzTxObj memory lzTxObj =
+            IStargateRouter.lzTxObj({dstGasForCall: 200_000, dstNativeAmount: 0, dstNativeAddr: ""});
 
         bytes memory toAddress = abi.encodePacked(recipient);
 
@@ -32,7 +29,7 @@ contract StargateTransfer is Ownable{
             _dstChainId,
             1, // for Swapping
             toAddress,
-            "",  // No payload for simple transfers
+            "", // No payload for simple transfers
             lzTxObj
         );
 
@@ -55,15 +52,12 @@ contract StargateTransfer is Ownable{
         IERC20(token).approve(address(stargateRouter), amount);
 
         // Prepare the lzTxObj
-        IStargateRouter.lzTxObj memory lzTxObj = IStargateRouter.lzTxObj({
-            dstGasForCall: 200_000,
-            dstNativeAmount: 0,
-            dstNativeAddr: ""
-        });
+        IStargateRouter.lzTxObj memory lzTxObj =
+            IStargateRouter.lzTxObj({dstGasForCall: 200_000, dstNativeAmount: 0, dstNativeAddr: ""});
 
         // Encode the recipient address
         bytes memory toAddress = abi.encodePacked(recipient);
-    
+
         // Call Stargate Router's swap function
         stargateRouter.swap{value: msg.value}(
             _dstChainId,
@@ -74,7 +68,7 @@ contract StargateTransfer is Ownable{
             minAmountLD,
             lzTxObj,
             toAddress,
-            ""  // no payload
+            "" // no payload
         );
     }
 
@@ -84,7 +78,7 @@ contract StargateTransfer is Ownable{
     }
 
     // Function to withdraw any stuck ETH from the contract
-    function withdrawETH() external onlyOwner{
+    function withdrawETH() external onlyOwner {
         payable(msg.sender).transfer(address(this).balance);
     }
 }

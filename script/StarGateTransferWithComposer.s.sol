@@ -18,37 +18,40 @@ contract StargateTransferScript is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy the StargateTransfer contract
-        stargateTransferWithCompose integration = new stargateTransferWithCompose();
+        ChainFolio integration = new ChainFolio();
+        console.log("deployed address:", address(integration));
 
         // as Alice
-        IERC20(sourceChainPoolToken).approve(stargatePoolUSDC, amount);
+        // IERC20(sourceChainPoolToken).approve(stargatePoolUSDC, amount);
 
-        address _oftOnDestination = 0x3253a335E7bFfB4790Aa4C25C4250d206E9b9773;
-        address _tokenReceiver = 0xdb6851c941F9be1Da78Cf1666a1BC5A64f4B4559;
+        // address _oftOnDestination = 0x3253a335E7bFfB4790Aa4C25C4250d206E9b9773;
+        // address _tokenReceiver = 0xdb6851c941F9be1Da78Cf1666a1BC5A64f4B4559;
+        // bool _isDefi = true;
 
-        bytes memory _composeMsg = abi.encode(
-            _tokenReceiver,
-            _oftOnDestination
-        );
+        // bytes memory _composeMsg = abi.encode(
+        //     _tokenReceiver,
+        //     _oftOnDestination
+        //     _isDefi
+        // );
 
-        (
-            uint256 valueToSend,
-            SendParam memory sendParam,
-            MessagingFee memory messagingFee
-        ) = integration.prepareTakeTaxi(
-                stargatePoolUSDC,
-                destinationEndpointId,
-                amount,
-                0xD62372709e1b3Ac4B5b26091EF84e33274d6201E,
-                _composeMsg
-            );
+        // (
+        //     uint256 valueToSend,
+        //     SendParam memory sendParam,
+        //     MessagingFee memory messagingFee
+        // ) = integration.prepareTakeTaxi(
+        //         stargatePoolUSDC,
+        //         destinationEndpointId,
+        //         amount,
+        //         0x0a11b9AF979654b3FD531F2658F512e23c6CCb61,
+        //         _composeMsg
+        //     );
 
-        IStargate(stargatePoolUSDC).sendToken{value: valueToSend}(
-            sendParam,
-            messagingFee,
-            0xD62372709e1b3Ac4B5b26091EF84e33274d6201E
-        );
+        // IStargate(stargatePoolUSDC).sendToken{value: valueToSend}(
+        //     sendParam,
+        //     messagingFee,
+        //     0x0a11b9AF979654b3FD531F2658F512e23c6CCb61
+        // );
 
-        vm.stopBroadcast();
+        // vm.stopBroadcast();
     }
 }
