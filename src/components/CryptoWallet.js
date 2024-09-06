@@ -7,34 +7,10 @@ import { Search, Settings, X } from "lucide-react";
 import Crypto from "./Crypto";
 import DeFi from "./DeFi";
 import Transactions from "./Transactions";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-// Define types for props and states
-interface NavLinkProps {
-  href: string;
-  children: React.ReactNode;
-}
-
-interface ChainIconProps {
-  name: string;
-  onDrop: (chainName: string, assetData: any) => void;
-  isDragging: boolean;
-}
-
-interface Asset {
-  name: string;
-  symbol: string;
-}
-
-interface CrossChainTransferFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  chainName: string | null;
-  asset: Asset | null;
-}
-
-const NavLink: React.FC<NavLinkProps> = ({ href, children }) => {
+const NavLink = ({ href, children }) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -50,10 +26,10 @@ const NavLink: React.FC<NavLinkProps> = ({ href, children }) => {
   );
 };
 
-const ChainIcon: React.FC<ChainIconProps> = ({ name, onDrop, isDragging }) => {
+const ChainIcon = ({ name, onDrop, isDragging }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragOver(true);
   };
@@ -62,14 +38,14 @@ const ChainIcon: React.FC<ChainIconProps> = ({ name, onDrop, isDragging }) => {
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
     const data = JSON.parse(e.dataTransfer.getData("text/plain"));
     onDrop(name, data);
   };
 
-  const getIcon = (name: string) => {
+  const getIcon = (name) => {
     switch (name) {
       case "Optimism":
         return (
@@ -82,7 +58,7 @@ const ChainIcon: React.FC<ChainIconProps> = ({ name, onDrop, isDragging }) => {
       case "Arbitrum":
         return (
           <img
-            src={`${process.env.NEXT_PUBLIC_URL}/arbitrum_logo.png`}
+            src={`${process.env.NEXT_PUBLIC_URL}/base_logo.png`}
             alt="Arbitrum Logo"
             className="w-full h-full object-contain"
           />
@@ -106,12 +82,7 @@ const ChainIcon: React.FC<ChainIconProps> = ({ name, onDrop, isDragging }) => {
   );
 };
 
-const CrossChainTransferForm: React.FC<CrossChainTransferFormProps> = ({
-  isOpen,
-  onClose,
-  chainName,
-  asset,
-}) => {
+const CrossChainTransferForm = ({ isOpen, onClose, chainName, asset }) => {
   const [step, setStep] = useState(1);
 
   const handleApprove = () => {
@@ -130,7 +101,7 @@ const CrossChainTransferForm: React.FC<CrossChainTransferFormProps> = ({
           </button>
         </div>
         <p className="mb-4">
-          Asset: {asset?.name} ({asset?.symbol})
+          Asset: {asset.name} ({asset.symbol})
         </p>
         <div className="space-y-4">
           <div className="flex items-center">
@@ -193,22 +164,19 @@ const CrossChainTransferForm: React.FC<CrossChainTransferFormProps> = ({
   );
 };
 
-const CryptoWallet: React.FC = () => {
+const CryptoWallet = () => {
   const pathname = usePathname();
   const [currentPath, setCurrentPath] = useState("/crypto");
   const [isTransferFormOpen, setIsTransferFormOpen] = useState(false);
-  const [selectedChain, setSelectedChain] = useState<string | null>(null);
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedChain, setSelectedChain] = useState(null);
+  const [selectedAsset, setSelectedAsset] = useState(null);
 
   const [isDragging, setIsDragging] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(event.target.value.toLowerCase());
-    },
-    []
-  );
+  const handleSearch = useCallback((event) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  }, []);
 
   useEffect(() => {
     const handleDragStart = () => setIsDragging(true);
@@ -229,7 +197,7 @@ const CryptoWallet: React.FC = () => {
     }
   }, [pathname]);
 
-  const handleChainDrop = (chainName: string, assetData: any) => {
+  const handleChainDrop = (chainName, assetData) => {
     setSelectedChain(chainName);
     setSelectedAsset(assetData);
     setIsTransferFormOpen(true);
@@ -240,6 +208,24 @@ const CryptoWallet: React.FC = () => {
 
   return (
     <div className="bg-black text-white min-h-screen p-4 flex flex-col">
+      {/* <header className="flex justify-between items-center mb-6">
+        <div className="flex-1 mr-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search coins, NFTs, apps..."
+              className="w-full bg-gray-800 rounded-full py-2 pl-10 pr-4 text-sm"
+              onChange={handleSearch}
+              value={searchTerm}
+            />
+          </div>
+        </div>
+        <div className="flex items-center">
+          <ConnectButton />
+        </div>
+      </header> */}
+
       <main className="flex-grow flex flex-col">
         <div className="flex items-center space-x-8 mb-6">
           <div>
@@ -272,23 +258,43 @@ const CryptoWallet: React.FC = () => {
           <NavLink href="/transactions">Transactions</NavLink>
         </nav>
 
+        {/* {currentPath === "/" && (
+          <div className="text-center py-12">
+            <div className="flex justify-center space-x-2 mb-4">
+              {["C", "🔗", "O"].map((icon, index) => (
+                <div
+                  key={index}
+                  className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-xl"
+                >
+                  {icon}
+                </div>
+              ))}
+            </div>
+            <h3 className="text-xl font-bold mb-2">
+              Add crypto to get started
+            </h3>
+            <p className="text-gray-400 mb-4">
+              Buy or send some crypto to your wallet to get started
+            </p>
+            <button className="bg-blue-500 text-white py-2 px-4 rounded-full">
+              Add Crypto
+            </button>
+          </div>
+        )} */}
+
         {currentPath === "/crypto" && <Crypto searchTerm={searchTerm} />}
         {currentPath === "/defi" && <DeFi searchTerm={searchTerm} />}
         {currentPath === "/transactions" && (
           <Transactions searchTerm={searchTerm} />
         )}
+
+        <CrossChainTransferForm
+          isOpen={isTransferFormOpen}
+          onClose={() => setIsTransferFormOpen(false)}
+          chainName={selectedChain}
+          asset={selectedAsset}
+        />
       </main>
-
-      <footer className="py-4">
-        <ConnectButton />
-      </footer>
-
-      <CrossChainTransferForm
-        isOpen={isTransferFormOpen}
-        onClose={() => setIsTransferFormOpen(false)}
-        chainName={selectedChain}
-        asset={selectedAsset}
-      />
     </div>
   );
 };

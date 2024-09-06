@@ -74,7 +74,7 @@ const Transactions: React.FC<TransactionsProps> = ({ searchTerm }) => {
       tokenSymbol: "USDC",
       tokenName: "USD Coin",
       fromChain: "Arbitrum",
-      toChain: "Base",
+      toChain: "Arbitrum",
       price: 100.0,
       txHash: "0x456...def",
     },
