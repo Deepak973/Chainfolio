@@ -75,10 +75,10 @@ const Page = () => {
             <h2 className="text-sm text-gray-400">Balance</h2>
             <p className="text-4xl font-bold">
               {isConnected
-                ? `$${
-                    (Number(balanceData?.value) / 1e18).toFixed(4) || "0.0000"
-                  }`
-                : "$0.00"}
+                ? `${
+                    (Number(balanceData?.value) / 1e18).toFixed(4) || "0.0000 ETH"
+                  } ETH`
+                : "0.00 ETH"}
             </p>
           </div>
           <div className="flex space-x-4">

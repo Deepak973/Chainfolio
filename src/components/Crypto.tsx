@@ -1,24 +1,81 @@
-import React, { useState } from "react";
+import { initializeClient } from "@/app/utils/publicClient";
+import React, { useEffect, useState } from "react";
+import { getContract } from "viem";
+import { useAccount, useWriteContract } from "wagmi";
+import ERC20ABI from "@/components/ERC20ABI.json"
+import { getChainId } from '@wagmi/core'
+import { config } from "@/app/utils/config";
+
+
+
+// Interface for the crypto assets
+interface CryptoAsset {
+  symbol: string;
+  name: string;
+  amount: number;
+  chain: string;
+  contractAddress: string;
+}
 
 interface CryptoCardProps {
   symbol: string;
   name: string;
-  price: number;
+  amount: number;
+  chain: string;
+  contractAddress: string;
 }
 
-const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, price }) => {
+const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,contractAddress}) => {
   const [isDragging, setIsDragging] = useState(false);
+  const { address } = useAccount();
+  const { writeContractAsync } = useWriteContract();
+  const chainId = getChainId(config) 
+
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(true);
     e.dataTransfer.setData(
       "text/plain",
-      JSON.stringify({ symbol, name, price })
+      JSON.stringify({ symbol, name, amount })
     );
   };
 
   const handleDragEnd = () => {
     setIsDragging(false);
+  };
+
+  type ContractAddress = `0x${string}`;
+  type Chain = "arbitrum" | "optimism";
+  const handleDrip = async (contractAddress:ContractAddress ,chain:Chain) => {
+
+    console.log(chain,chainId);
+    if(chain==="arbitrum" && chainId!==421614)
+    {
+      console.log("Please swith to correct chain")
+    
+      return;
+    }
+    else if(chain==="optimism" && chainId!==11155420)
+    {
+      console.log("Please swith to correct chain")
+
+      return;
+    }
+    console.log("dripping!!",contractAddress)
+    const tx = await writeContractAsync({
+      address: contractAddress,
+      account: address as `0x${string}`,
+      abi: ERC20ABI,
+      functionName: "mint",
+      args: [address,10000000], //10 USDC
+    });
+
+    console.log(tx)
+
+    const client =initializeClient(chainId);
+    const receipt = await client.waitForTransactionReceipt({ hash: tx });
+    console.log(receipt);
+  
   };
 
   return (
@@ -32,15 +89,30 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, price }) => {
     >
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-xl font-bold">
-          {symbol[0]}
+        <img
+            src={`${process.env.NEXT_PUBLIC_URL}/usdc_logo.png`}
+            alt="Optimism Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
         <div>
           <h3 className="text-lg font-semibold text-white">{name}</h3>
-          <p className="text-sm text-gray-400">{symbol}</p>
+          <p className="text-sm text-gray-400">{chain}</p>
         </div>
       </div>
       <div className="mt-3">
-        <p className="text-2xl font-bold text-white">${price.toFixed(2)}</p>
+        <p className="text-2xl font-bold text-white">${amount.toFixed(2)}</p>
+      </div>
+      <div className="mt-4">
+      <div className="relative inline-block">
+  <button
+    onClick={()=>{handleDrip(contractAddress as `0x${string}`,chain as Chain)}}
+    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
+  >
+    Drip
+  </button>
+  
+</div>
       </div>
     </div>
   );
@@ -50,19 +122,71 @@ interface CryptoProps {
   searchTerm: string;
 }
 
-interface CryptoAsset {
-  symbol: string;
-  name: string;
-  price: number;
-}
 
 const Crypto: React.FC<CryptoProps> = ({ searchTerm }) => {
-  const cryptoAssets: CryptoAsset[] = [
-    { symbol: "BTC", name: "Bitcoin", price: 30000.0 },
-    { symbol: "ETH", name: "Ethereum", price: 2000.0 },
-    { symbol: "ADA", name: "Cardano", price: 0.5 },
-  ];
+  const [cryptoAssets, setCryptoAssets] = useState<CryptoAsset[]>([
+    {
+      symbol: "USDC",
+      name: "USDC",
+      amount: 0,
+      chain: "arbitrum",
+      contractAddress: "0x3253a335E7bFfB4790Aa4C25C4250d206E9b9773",
+    },
+    {
+      symbol: "USDC",
+      name: "USDC",
+      amount: 0,
+      chain: "optimism",
+      contractAddress: "0x488327236B65C61A6c083e8d811a4E0D3d1D4268",
+    },
+  ]);
 
+  // Initialize clients for Arbitrum and Optimism
+  const clientArbitrum = initializeClient(421614);
+  const clientOptimism = initializeClient(11155420);
+
+  // Get the connected account address
+  const { address } = useAccount();
+
+
+  // Function to fetch balance using `getContract` from viem
+  const fetchBalances = async () => {
+    const updatedAssets = await Promise.all(
+      cryptoAssets.map(async (asset) => {
+        try {
+          const contract = getContract({
+            address: asset.contractAddress as `0x${string}`, // Type assertion to satisfy TypeScript
+            abi: ERC20ABI,
+            client: asset.chain === "arbitrum" ? clientArbitrum : clientOptimism,
+          });
+
+          const balance = await contract.read.balanceOf([address as `0x${string}`]);
+          const balanceBigInt = BigInt(balance as unknown as string);
+
+          // Convert balance from BigInt to a number, adjusting for USDC's 6 decimals
+          const formattedBalance = parseFloat(
+            (balanceBigInt / BigInt(10 ** 6)).toString()
+          );
+          console.log(formattedBalance);
+          // Return the updated asset with real-time balance
+          return { ...asset, amount: formattedBalance };
+        } catch (error) {
+          console.error(`Error fetching balance for ${asset.chain}:`, error);
+          return asset; // Return the asset unchanged in case of an error
+        }
+      })
+    );
+    setCryptoAssets(updatedAssets); // Update state with the new balances
+  };
+
+  useEffect(() => {
+    if(address)
+    {
+    fetchBalances();
+    }
+  }, [address]);
+
+  // Filter assets based on the search term
   const filteredAssets = cryptoAssets.filter(
     (asset) =>
       asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

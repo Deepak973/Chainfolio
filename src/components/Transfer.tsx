@@ -44,7 +44,7 @@ export const ChainIcon: React.FC<ChainIconProps> = ({
       case "Arbitrum":
         return (
           <img
-            src={`${process.env.NEXT_PUBLIC_URL}/base_logo.png`}
+            src={`${process.env.NEXT_PUBLIC_URL}/arbitrum_logo.png`}
             alt="Arbitrum Logo"
             className="w-full h-full object-contain"
           />
