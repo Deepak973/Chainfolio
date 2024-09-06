@@ -45,7 +45,7 @@ const APYComparisonCard: React.FC<APYComparisonCardProps> = ({
         </div>
         <div className="flex space-x-4">
           <APYDisplay chain="Optimism" apy={optimismAPY} />
-          <APYDisplay chain="Base" apy={baseAPY} />
+          <APYDisplay chain="Arbitrum" apy={baseAPY} />
         </div>
       </div>
     </div>
@@ -81,7 +81,7 @@ const DeFi: React.FC<DeFiProps> = ({ searchTerm }) => {
   return (
     <div className="p-8 bg-gray-900 min-h-screen">
       <h2 className="text-3xl font-bold text-white mb-6 text-center">
-        APY Comparison: Optimism vs Base
+        APY Comparison: Optimism vs Arbitrum
       </h2>
       <div className="max-w-4xl mx-auto grid grid-cols-1 gap-6">
         {filteredData.map((data) => (

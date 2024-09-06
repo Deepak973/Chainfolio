@@ -88,7 +88,7 @@ const Page = () => {
               isDragging={isDragging}
             />
             <ChainIcon
-              name="Base"
+              name="Arbitrum"
               onDrop={handleChainDrop}
               isDragging={isDragging}
             />

@@ -17,7 +17,7 @@
 
 ## Smart Contract addresses
 
-1. SmartContract on Base :
+1. SmartContract on Arbitrum :
 2. SmartContract on Optimism :
 
 ## Sponsers Used
