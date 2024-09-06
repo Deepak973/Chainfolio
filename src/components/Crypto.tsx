@@ -36,7 +36,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
     setIsDragging(true);
     e.dataTransfer.setData(
       "text/plain",
-      JSON.stringify({ symbol, name, amount })
+      JSON.stringify({ symbol, name, amount,chain ,contractAddress})
     );
   };
 
@@ -106,7 +106,8 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
       <div className="mt-4">
       <div className="relative inline-block">
   <button
-    onClick={()=>{handleDrip(contractAddress as `0x${string}`,chain as Chain)}}
+    onClick={()=>{handleDrip(contractAddress as `0x${string}`,chain as Chain)}
+  } 
     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
   >
     Drip
