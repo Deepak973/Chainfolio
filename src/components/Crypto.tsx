@@ -5,14 +5,6 @@ import { useAccount, useWriteContract } from "wagmi";
 import ERC20ABI from "@/components/ERC20ABI.json"
 import { getChainId } from '@wagmi/core'
 import { config } from "@/app/utils/config";
-import { switchChain } from '@wagmi/core';
-import { switchNetwork } from '@wagmi/core'
-import {
-  arbitrumSepolia,
-  arbitrum,
-  optimismSepolia,
-  optimism,
-} from "@wagmi/core/chains";
 
 
 
@@ -33,12 +25,28 @@ interface CryptoCardProps {
   contractAddress: string;
 }
 
+const WrongChainModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+    
+      <p className="text-xl font-bold text-red-600">Switch Chain to Drip</p>
+      <button
+        className="mt-6 bg-red-600 text-white px-4 py-2 rounded-lg"
+        onClick={onClose}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+);
+
 const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,contractAddress}) => {
   const [isDragging, setIsDragging] = useState(false);
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const chainId = getChainId(config) 
   const [isDraggable, setIsDraggable] =useState(true);
+  const [showMessage, setShowChainMessage] = useState(false);
 
 
   useEffect(()=>{
@@ -46,6 +54,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
       {
         console.log("Please swith to correct chain")
         setIsDraggable(false);
+        setShowChainMessage(true);
       
         return;
       }
@@ -53,11 +62,14 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
       {
         console.log("Please swith to correct chain")
         setIsDraggable(false);
+        setShowChainMessage(true);
   
         return;
       }
 
   },[])
+
+
   
 
 
@@ -82,14 +94,16 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
     if(chain==="arbitrum" && chainId!==421614)
     {
       console.log("Please swith to correct chain")
-      await switchChain(config, { chainId: arbitrumSepolia.id });
+      // await switchChain(config, { chainId: arbitrumSepolia.id });
+      setShowChainMessage(true);
     
       return;
     }
     else if(chain==="optimism" && chainId!==11155420)
     {
       console.log("Please swith to correct chain")
-      await switchChain(config, { chainId: optimismSepolia.id });
+      // await switchChain(config, { chainId: optimismSepolia.id });
+      setShowChainMessage(true);
 
       return;
     }
@@ -137,16 +151,23 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
       </div>
       <div className="mt-4">
       <div className="relative inline-block">
+      <div className="relative group">
   <button
-    onClick={()=>{handleDrip(contractAddress as `0x${string}`,chain as Chain)}
-  } 
+    onClick={() => handleDrip(contractAddress as `0x${string}`, chain as Chain)}
     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
   >
     Drip
   </button>
+
+  {/* Tooltip */}
+  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 px-4 py-2 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity text-center">
+    Click to get 10 USDC
+  </div>
+</div>
   
 </div>
       </div>
+      {showMessage && <WrongChainModal onClose={() => setShowChainMessage(false)} />}
       
     </div>
   );

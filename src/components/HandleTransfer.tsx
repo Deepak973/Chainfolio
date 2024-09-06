@@ -210,12 +210,12 @@ const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           <div>
             <p>Approving transfer...</p>
             <input
-    type="text"
-    value={amountUSDC}
-    onChange={handleAmountChange}
-    placeholder="Enter amount"
-    className="bg-gray-700 text-white px-4 py-2 rounded-md w-full"
-  />
+            type="text"
+            value={amountUSDC}
+            onChange={handleAmountChange}
+            placeholder="Enter amount"
+            className="bg-gray-700 text-white px-4 py-2 rounded-md w-full"
+            />
   {errorMessage && (
     <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
   )}

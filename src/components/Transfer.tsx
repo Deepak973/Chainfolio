@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+"use client"
 import React, { useState } from "react";
 
 import { getChainId } from "@wagmi/core";
@@ -13,12 +14,14 @@ type ChainIconProps = {
   name: string;
   onDrop: (chainName: string, data: any) => void;
   isDragging: boolean;
+  setShowChainMessage: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const ChainIcon: React.FC<ChainIconProps> = ({
   name,
   onDrop,
   isDragging,
+  setShowChainMessage,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
 
@@ -47,11 +50,12 @@ export const ChainIcon: React.FC<ChainIconProps> = ({
     console.log(data,chainId,name);
     if(data.chain==="arbitrum" && name==="Arbitrum")
       {
+        setShowChainMessage(true);
         return;
       }
       else if(data.chain==="optimism" && name==="Optimism")
       {
-        
+        setShowChainMessage(true);
         return;
       }
     onDrop(name, data);

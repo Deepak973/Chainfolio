@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
+"use client"
+
 import React, { useState, useEffect, useCallback } from "react";
 import { Search, Settings, X } from "lucide-react";
 import Crypto from "@/components/Crypto";
@@ -7,8 +7,7 @@ import DeFi from "@/components/DeFi";
 import Transactions from "@/components/Transactions";
 import { useAccount, useBalance } from "wagmi";
 import { ChainIcon } from "@/components/Transfer";
-import {  CrossChainTransferForm } from "@/components/HandleTransfer";
-
+import { CrossChainTransferForm } from "@/components/HandleTransfer";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 type Asset = {
@@ -17,7 +16,6 @@ type Asset = {
   amount: number;
   chain: string;
   contractAddress: string;
-
 };
 
 const NavLink: React.FC<{
@@ -35,12 +33,27 @@ const NavLink: React.FC<{
   </button>
 );
 
+const WrongChainModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-lg shadow-lg">
+      
+      <p className="text-xl font-bold text-red-600">You Cannot Bridge to same chain. Please choose different chain.</p>
+      <button
+        className="mt-6 bg-red-600 text-white px-4 py-2 rounded-lg"
+        onClick={onClose}
+      >
+        Close
+      </button>
+    </div>
+  </div>
+);
+
 const Page = () => {
   const [currentTab, setCurrentTab] = useState<string>("crypto");
   const [isTransferFormOpen, setIsTransferFormOpen] = useState(false);
   const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
-
+  const [showMessage, setShowChainMessage] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -92,11 +105,13 @@ const Page = () => {
               name="Optimism"
               onDrop={handleChainDrop}
               isDragging={isDragging}
+              setShowChainMessage={setShowChainMessage}
             />
             <ChainIcon
               name="Arbitrum"
               onDrop={handleChainDrop}
               isDragging={isDragging}
+              setShowChainMessage={setShowChainMessage}
             />
           </div>
         </div>
@@ -131,6 +146,8 @@ const Page = () => {
           chainName={selectedChain}
           asset={selectedAsset}
         />
+
+        {showMessage && <WrongChainModal onClose={() => setShowChainMessage(false)} />}
       </main>
     </div>
   );
