@@ -43,6 +43,18 @@ type CrossChainTransferFormProps = {
     const { address } = useAccount();
     const [amountUSDC, setAmount] = useState<number | "">("");
     const [transactionHash, setTransactionHash] =useState("");
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const inputAmount = Number(e.target.value);
+  setAmount(inputAmount);
+  
+  if (asset && inputAmount > asset.amount) {
+    setErrorMessage(`Amount exceeds your current balance of ${asset.amount} ${asset.symbol}`);
+  } else {
+    setErrorMessage(null);
+  }
+};
 
   
   
@@ -198,12 +210,15 @@ type CrossChainTransferFormProps = {
           <div>
             <p>Approving transfer...</p>
             <input
-              type="number"
-              value={amountUSDC}
-              onChange={(e) => setAmount(Number(e.target.value))}
-              placeholder="Enter amount"
-              className="bg-gray-700 text-white px-4 py-2 rounded-md"
-            />
+    type="text"
+    value={amountUSDC}
+    onChange={handleAmountChange}
+    placeholder="Enter amount"
+    className="bg-gray-700 text-white px-4 py-2 rounded-md w-full"
+  />
+  {errorMessage && (
+    <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
+  )}
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4"
               onClick={handleApprove}

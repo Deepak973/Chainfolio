@@ -67,7 +67,6 @@ const APYDisplay: React.FC<APYDisplayProps> = ({ chain, apy }) => {
 const DeFi: React.FC<DeFiProps> = ({ searchTerm }) => {
   const apyData = [
     { token: "USDC", name: "USD Coin", optimismAPY: 3.5, baseAPY: 4.2 },
-    { token: "ETH", name: "Ethereum", optimismAPY: 4.8, baseAPY: 5.1 },
     { token: "DAI", name: "Dai", optimismAPY: 3.2, baseAPY: 3.8 },
     { token: "WBTC", name: "Wrapped Bitcoin", optimismAPY: 2.9, baseAPY: 3.3 },
   ];
