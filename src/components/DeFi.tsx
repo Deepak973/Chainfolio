@@ -26,7 +26,7 @@ const APYComparisonCard: React.FC<APYComparisonCardProps> = ({
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData(
       "text/plain",
-      JSON.stringify({ token, symbol: token, name: name })
+      JSON.stringify({ token, symbol: token, name: name ,isDefi: true})
     );
   };
 

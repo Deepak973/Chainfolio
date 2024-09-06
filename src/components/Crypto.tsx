@@ -54,15 +54,14 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
       {
         console.log("Please swith to correct chain")
         setIsDraggable(false);
-        setShowChainMessage(true);
-      
+    
         return;
       }
       else if(chain==="optimism" && chainId!==11155420)
       {
         console.log("Please swith to correct chain")
         setIsDraggable(false);
-        setShowChainMessage(true);
+       
   
         return;
       }

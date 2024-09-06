@@ -9,6 +9,7 @@ import { useAccount, useBalance } from "wagmi";
 import { ChainIcon } from "@/components/Transfer";
 import { CrossChainTransferForm } from "@/components/HandleTransfer";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import CrossChainTransferFormDefi from "@/components/HandleTransferDefi";
 
 type Asset = {
   symbol: string;
@@ -16,6 +17,7 @@ type Asset = {
   amount: number;
   chain: string;
   contractAddress: string;
+  isDefi :boolean|undefined;
 };
 
 const NavLink: React.FC<{
@@ -51,6 +53,8 @@ const WrongChainModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 const Page = () => {
   const [currentTab, setCurrentTab] = useState<string>("crypto");
   const [isTransferFormOpen, setIsTransferFormOpen] = useState(false);
+  const [isTransferFormOpenDefi, setIsTransferFormOpenDefi] = useState(false);
+
   const [selectedChain, setSelectedChain] = useState<string | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [showMessage, setShowChainMessage] = useState(false);
@@ -80,6 +84,13 @@ const Page = () => {
   const handleChainDrop = (chainName: string, assetData: Asset) => {
     setSelectedChain(chainName);
     setSelectedAsset(assetData);
+    if(assetData.isDefi)
+    {
+      console.log("first")
+      setIsTransferFormOpenDefi(true);
+      return;
+    }
+    console.log(assetData);
     setIsTransferFormOpen(true);
   };
 
@@ -143,6 +154,13 @@ const Page = () => {
         <CrossChainTransferForm
           isOpen={isTransferFormOpen}
           onClose={() => setIsTransferFormOpen(false)}
+          chainName={selectedChain}
+          asset={selectedAsset}
+        />
+
+         <CrossChainTransferFormDefi
+          isOpen={isTransferFormOpenDefi}
+          onClose={() => setIsTransferFormOpenDefi(false)}
           chainName={selectedChain}
           asset={selectedAsset}
         />
