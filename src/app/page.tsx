@@ -6,12 +6,18 @@ import Crypto from "@/components/Crypto";
 import DeFi from "@/components/DeFi";
 import Transactions from "@/components/Transactions";
 import { useAccount, useBalance } from "wagmi";
-import { ChainIcon, CrossChainTransferForm } from "@/components/Transfer";
+import { ChainIcon } from "@/components/Transfer";
+import {  CrossChainTransferForm } from "@/components/HandleTransfer";
+
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 type Asset = {
-  name: string;
   symbol: string;
+  name: string;
+  amount: number;
+  chain: string;
+  contractAddress: string;
+
 };
 
 const NavLink: React.FC<{

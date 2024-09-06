@@ -5,6 +5,14 @@ import { useAccount, useWriteContract } from "wagmi";
 import ERC20ABI from "@/components/ERC20ABI.json"
 import { getChainId } from '@wagmi/core'
 import { config } from "@/app/utils/config";
+import { switchChain } from '@wagmi/core';
+import { switchNetwork } from '@wagmi/core'
+import {
+  arbitrumSepolia,
+  arbitrum,
+  optimismSepolia,
+  optimism,
+} from "@wagmi/core/chains";
 
 
 
@@ -30,6 +38,28 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const chainId = getChainId(config) 
+  const [isDraggable, setIsDraggable] =useState(true);
+
+
+  useEffect(()=>{
+    if(chain==="arbitrum" && chainId!==421614)
+      {
+        console.log("Please swith to correct chain")
+        setIsDraggable(false);
+      
+        return;
+      }
+      else if(chain==="optimism" && chainId!==11155420)
+      {
+        console.log("Please swith to correct chain")
+        setIsDraggable(false);
+  
+        return;
+      }
+
+  },[])
+  
+
 
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
@@ -52,12 +82,14 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
     if(chain==="arbitrum" && chainId!==421614)
     {
       console.log("Please swith to correct chain")
+      await switchChain(config, { chainId: arbitrumSepolia.id });
     
       return;
     }
     else if(chain==="optimism" && chainId!==11155420)
     {
       console.log("Please swith to correct chain")
+      await switchChain(config, { chainId: optimismSepolia.id });
 
       return;
     }
@@ -83,7 +115,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
       className={`bg-gray-800 rounded-lg p-4 shadow-lg cursor-move transition-all duration-200 ${
         isDragging ? "opacity-50 scale-105" : "opacity-100 scale-100"
       }`}
-      draggable
+      draggable={isDraggable}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
@@ -115,6 +147,7 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, amount,chain ,con
   
 </div>
       </div>
+      
     </div>
   );
 };
@@ -202,6 +235,7 @@ const Crypto: React.FC<CryptoProps> = ({ searchTerm }) => {
         ))}
       </div>
     </div>
+    
   );
 };
 
