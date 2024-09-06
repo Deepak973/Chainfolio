@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const CryptoCard = ({ symbol, name, price }) => {
+interface CryptoCardProps {
+  symbol: string;
+  name: string;
+  price: number;
+}
+
+const CryptoCard: React.FC<CryptoCardProps> = ({ symbol, name, price }) => {
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragStart = (e) => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(true);
-    e.dataTransfer.setData('text/plain', JSON.stringify({ symbol, name, price }));
+    e.dataTransfer.setData(
+      "text/plain",
+      JSON.stringify({ symbol, name, price })
+    );
   };
-  
+
   const handleDragEnd = () => {
     setIsDragging(false);
   };
@@ -15,7 +24,7 @@ const CryptoCard = ({ symbol, name, price }) => {
   return (
     <div
       className={`bg-gray-800 rounded-lg p-4 shadow-lg cursor-move transition-all duration-200 ${
-        isDragging ? 'opacity-50 scale-105' : 'opacity-100 scale-100'
+        isDragging ? "opacity-50 scale-105" : "opacity-100 scale-100"
       }`}
       draggable
       onDragStart={handleDragStart}
@@ -37,16 +46,27 @@ const CryptoCard = ({ symbol, name, price }) => {
   );
 };
 
-const Crypto = ({ searchTerm }) => {
-  const cryptoAssets = [
-    { symbol: 'BTC', name: 'Bitcoin', price: 30000.00 },
-    { symbol: 'ETH', name: 'Ethereum', price: 2000.00 },
-    { symbol: 'ADA', name: 'Cardano', price: 0.50 },
+interface CryptoProps {
+  searchTerm: string;
+}
+
+interface CryptoAsset {
+  symbol: string;
+  name: string;
+  price: number;
+}
+
+const Crypto: React.FC<CryptoProps> = ({ searchTerm }) => {
+  const cryptoAssets: CryptoAsset[] = [
+    { symbol: "BTC", name: "Bitcoin", price: 30000.0 },
+    { symbol: "ETH", name: "Ethereum", price: 2000.0 },
+    { symbol: "ADA", name: "Cardano", price: 0.5 },
   ];
 
-  const filteredAssets = cryptoAssets.filter(asset => 
-    asset.name.toLowerCase().includes(searchTerm) || 
-    asset.symbol.toLowerCase().includes(searchTerm)
+  const filteredAssets = cryptoAssets.filter(
+    (asset) =>
+      asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
