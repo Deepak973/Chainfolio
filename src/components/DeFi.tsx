@@ -1,4 +1,8 @@
-import React from "react";
+import { initializeClient } from "@/app/utils/publicClient";
+import React, { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import ERC20ABI from "@/components/ERC20ABI.json";
+import { getContract } from "viem";
 
 // Define types for props
 interface APYComparisonCardProps {
@@ -6,6 +10,7 @@ interface APYComparisonCardProps {
   name: string;
   optimismAPY: number;
   baseAPY: number;
+  balance: string;
 }
 
 interface APYDisplayProps {
@@ -22,11 +27,12 @@ const APYComparisonCard: React.FC<APYComparisonCardProps> = ({
   name,
   optimismAPY,
   baseAPY,
+  balance,
 }) => {
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData(
       "text/plain",
-      JSON.stringify({ token, symbol: token, name: name ,isDefi: true})
+      JSON.stringify({ token, symbol: token, name: name, isDefi: true })
     );
   };
 
@@ -41,7 +47,10 @@ const APYComparisonCard: React.FC<APYComparisonCardProps> = ({
           <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-md">
             {token[0]}
           </div>
-          <h3 className="text-xl font-semibold text-white">{token}</h3>
+          <h3 className="text-xl font-semibold text-white">
+  {balance} <span className="ml-2">{token}</span>
+</h3>
+          
         </div>
         <div className="flex space-x-4">
           <APYDisplay chain="Optimism" apy={optimismAPY} />
@@ -65,11 +74,47 @@ const APYDisplay: React.FC<APYDisplayProps> = ({ chain, apy }) => {
 };
 
 const DeFi: React.FC<DeFiProps> = ({ searchTerm }) => {
-  const apyData = [
-    { token: "USDC", name: "USD Coin", optimismAPY: 3.5, baseAPY: 4.2 },
-    { token: "DAI", name: "Dai", optimismAPY: 3.2, baseAPY: 3.8 },
-    { token: "WBTC", name: "Wrapped Bitcoin", optimismAPY: 2.9, baseAPY: 3.3 },
-  ];
+  const [apyData, setApyData] = useState([
+    { token: "AUSDC", name: "USD Coin", optimismAPY: 3.5, baseAPY: 4.2, balance: "0" },
+    { token: "ADAI", name: "Dai", optimismAPY: 3.2, baseAPY: 3.8, balance: "0" },
+    { token: "AWBTC", name: "Wrapped Bitcoin", optimismAPY: 2.9, baseAPY: 3.3, balance: "0" },
+  ]);
+
+  const { address } = useAccount();
+
+  useEffect(() => {
+    const fetchBalances = async () => {
+      const clientOptimism = initializeClient(11155420); // Optimism chain ID
+      const newApyData = [...apyData];
+
+      for (let i = 0; i < newApyData.length; i++) {
+        const tokenData = newApyData[i];
+        const contract = getContract({
+          address: "0x5fd84259d66Cd46123540766Be93DFE6D43130D7",
+          abi: ERC20ABI,
+          client: clientOptimism,
+        });
+
+        
+        try {
+          const balance = await contract.read.balanceOf([address as `0x${string}`]);
+          if (typeof balance === 'string') {
+            tokenData.balance = (BigInt(balance) / BigInt(1e6)).toString();
+          } else {
+            console.error(`Unexpected type for balance: ${typeof balance}`);
+          }
+        } catch (error) {
+          console.error(`Error fetching balance for ${tokenData.token}:`, error);
+        }
+      }
+
+      setApyData(newApyData);
+    };
+
+    if (address) {
+      fetchBalances();
+    }
+  }, [address]);
 
   const filteredData = apyData.filter(
     (data) =>

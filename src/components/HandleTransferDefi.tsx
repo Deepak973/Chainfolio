@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { useAccount, useWriteContract } from "wagmi";
-import { BigNumber } from "ethers";
-import ERC20ABI from "@/components/ERC20ABI.json";
-import StargateEndpointABI from "@/components/StargateEndpointABI.json";
-import ChainFolioABI from "@/components/ChainFolioABI.json";
-import { getChainId } from "@wagmi/core";
+import { BigNumber, ethers } from "ethers";
+import ERC20ABI from "@/components/ERC20ABI.json"; // ABI for USDC
+import AaveLendingPoolABI from "@/components/AaveABI.json"; // ABI for Aave Lending Pool
+import StargateEndpointABI from "@/components/StargateEndpointABI.json"; // ABI for LayerZero
 import { config } from "@/app/utils/config";
-import { initializeClient } from "@/app/utils/publicClient";
 import contractAddresses from "@/ContractAddresses";
+import { Address } from "viem";
+import { getChainId } from "@wagmi/core";
+
 
 type CrossChainTransferFormProps = {
     isOpen: boolean;
@@ -49,33 +50,79 @@ export const CrossChainTransferFormDefi: React.FC<CrossChainTransferFormProps> =
         }
     };
 
-    // Step 1: Approve A tokens
+    // Step 1: Approve A tokens (approve Aave to withdraw USDC)
     const handleApproveA = async () => {
-        console.log("Approving A tokens...");
-        // Your logic for approving A tokens
-        setStep(2);
+        
+        if (!asset) {
+            console.error("Asset is not defined");
+            return;
+          }
+        try {
+            const tx = await writeContractAsync({
+                address: "0xa818F1B57c201E092C4A2017A91815034326Efd1" ,
+                abi: ERC20ABI,
+                functionName: "approve",
+                args: ["0xb50201558B00496A145fE76f7424749556E326D8" , ethers.utils.parseUnits(String(amountUSDC), 6)], // 6 decimals for USDC
+            });
+            setTransactionHash(tx);
+           
+            console.log("A tokens approved.");
+            setStep(2);
+        } catch (error) {
+            console.error("Approval failed", error);
+            setErrorMessage("Approval failed");
+        }
     };
 
-    // Step 2: Remove Liquidity from Aave
+    // Step 2: Remove Liquidity from Aave (withdraw USDC)
     const handleRemoveLiquidity = async () => {
-        console.log("Removing Liquidity from Aave...");
-        // Your logic for removing liquidity
-        setStep(3);
+        if (!asset) {
+            console.error("Asset is not defined");
+            return;
+          }
+        try {
+            const tx = await writeContractAsync({
+                address: "0xb50201558B00496A145fE76f7424749556E326D8",
+                abi: AaveLendingPoolABI,
+                functionName: "withdraw",
+                args: ["0x5fd84259d66Cd46123540766Be93DFE6D43130D7", ethers.utils.parseUnits(String(amountUSDC), 6), address],
+            });
+            setTransactionHash(tx);
+           
+            console.log("Liquidity removed from Aave.");
+            setStep(3);
+        } catch (error) {
+            console.error("Remove liquidity failed", error);
+            setErrorMessage("Remove liquidity failed");
+        }
     };
 
-    // Step 3: Approve tokens for LayerZero
+    // Step 3: Approve USDC for LayerZero
     const handleApproveLayerZero = async () => {
-        console.log("Approving tokens for LayerZero...");
-        // Your logic for LayerZero approval
-        setStep(4);
+        if (!asset) {
+            console.error("Asset is not defined");
+            return;
+          }
+          const chainId = getChainId(config);
+          const stargatePoolUSDC = contractAddresses[chainId]["stargate_endpoint"];
+        try {
+            const tx = await writeContractAsync({
+                address: "0x5fd84259d66Cd46123540766Be93DFE6D43130D7",
+                abi: ERC20ABI,
+                functionName: "approve",
+                args: [stargatePoolUSDC, ethers.utils.parseUnits(String(amountUSDC), 6)], // Approve USDC for LayerZero
+            });
+            setTransactionHash(tx);
+            
+            console.log("USDC approved for LayerZero.");
+            setStep(4);
+        } catch (error) {
+            console.error("LayerZero approval failed", error);
+            setErrorMessage("LayerZero approval failed");
+        }
     };
 
-    // Step 4: Bridge the token
-    const handleBridgeToken = async () => {
-        console.log("Bridging the token...");
-        // Your logic for bridging tokens
-        setStep(5); // Optional: You can reset or show a success message
-    };
+  
 
     if (!isOpen || !chainName || !asset) return null;
 
@@ -193,7 +240,7 @@ export const CrossChainTransferFormDefi: React.FC<CrossChainTransferFormProps> =
                         className={`bg-blue-500 text-white px-4 py-2 rounded-md mt-2 ${
                             step === 4 ? "" : "opacity-50 cursor-not-allowed"
                         }`}
-                        onClick={handleBridgeToken}
+                        // onClick={handleBridgeToken}
                         disabled={step !== 4}
                     >
                         Bridge Tokens
