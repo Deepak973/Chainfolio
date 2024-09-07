@@ -37,8 +37,8 @@
 
 
 2. HyperSync
-   Implementation Link:
-   Usage: https://envio-apis.vercel.app/
+   Implementation Link: https://envio-apis.vercel.app/
+   Usage: 
    We have used HyperSync to get the postion of users in Aaave 
    and analyze the Best APY
 
