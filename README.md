@@ -35,10 +35,12 @@
    We have used LzCompose to execute External contract on the receiver contract after a message is executed.
    we are depositiog the tokens to Aave on destination chain using LzCompose In one transaction only.
 
-   
+
 2. HyperSync
    Implementation Link:
-   Usage:
+   Usage: https://envio-apis.vercel.app/
+   We have used HyperSync to get the postion of users in Aaave 
+   and analyze the Best APY
 
 ## find Our backend Code in this Repo
 
