@@ -95,9 +95,14 @@ const DeFi: React.FC<DeFiProps> = ({ searchTerm }) => {
           client: clientOptimism,
         });
 
+        
         try {
           const balance = await contract.read.balanceOf([address as `0x${string}`]);
-          tokenData.balance = (BigInt(balance) / BigInt(1e6)).toString(); // Assuming 6 decimals for USDC
+          if (typeof balance === 'string') {
+            tokenData.balance = (BigInt(balance) / BigInt(1e6)).toString();
+          } else {
+            console.error(`Unexpected type for balance: ${typeof balance}`);
+          }
         } catch (error) {
           console.error(`Error fetching balance for ${tokenData.token}:`, error);
         }

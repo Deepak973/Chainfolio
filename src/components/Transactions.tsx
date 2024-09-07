@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRightIcon, ExternalLinkIcon } from "lucide-react";
+import { useAccount } from "wagmi";
+
+
 
 // Define the props type for TransactionRow
 interface TransactionRowProps {
@@ -43,10 +46,10 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
       </div>
       <div className="flex items-center justify-end w-1/3">
         <div className="text-green-400 font-semibold mr-6">
-          ${price.toFixed(2)}
+         
         </div>
         <a
-          href={`https://etherscan.io/tx/${txHash}`}
+          href={`https://testnet.layerzeroscan.com/tx/${txHash}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-400 hover:text-blue-300 transition-colors duration-300 flex items-center"
@@ -61,40 +64,36 @@ const TransactionRow: React.FC<TransactionRowProps> = ({
 
 // Transactions component with TypeScript annotations
 const Transactions: React.FC<TransactionsProps> = ({ searchTerm }) => {
-  const transactions: TransactionRowProps[] = [
-    {
-      tokenSymbol: "USDC",
-      tokenName: "USDC",
-      fromChain: "Arbitrum",
-      toChain: "Optimism",
-      price: 1820.5,
-      txHash: "0x123...abc",
-    },
-    {
-      tokenSymbol: "USDC",
-      tokenName: "USDC",
-      fromChain: "Optimism",
-      toChain: "Arbitrum",
-      price: 100.0,
-      txHash: "0x456...def",
-    },
-    {
-      tokenSymbol: "USDC",
-      tokenName: "USDC",
-      fromChain: "Optimism",
-      toChain: "Arbitrum",
-      price: 29450.75,
-      txHash: "0x789...ghi",
-    },
-    {
-      tokenSymbol: "USDC",
-      tokenName: "USDC",
-      fromChain: "Optimism",
-      toChain: "Arbitrum",
-      price: 500.0,
-      txHash: "0xabc...123",
-    },
-  ];
+  const [transactions, setTransactions] = useState<TransactionRowProps[]>([]);
+  const {address} = useAccount();
+
+  useEffect(() => {
+    // Fetch transactions from the API
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch(
+           `https://scan-testnet.layerzero-api.com/v1/messages/wallet/${address?.toLowerCase()}?limit=100`
+        );
+        const data = await response.json();
+
+        // Map the API data to TransactionRowProps
+        const mappedTransactions = data.data.map((tx: any) => ({
+          tokenSymbol: "USDC", // Assuming USDC for now
+          tokenName: "USDC",   // Assuming USDC for now
+          fromChain: tx.pathway.sender.chain, // Get the chain names from the API data
+          toChain: tx.pathway.receiver.chain,
+          price: parseFloat(tx.source.tx.gas), // Using gas as an example for price
+          txHash: tx.source.tx.txHash,
+        }));
+
+        setTransactions(mappedTransactions);
+      } catch (error) {
+        console.error("Failed to fetch transactions:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, [address]);
 
   const filteredTransactions = transactions.filter(
     (tx) =>
